@@ -5,7 +5,7 @@ import "./index.css";
 import Root from "./pages/Root.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
 import StartPage from "./pages/StartPage.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import Dashboard, {loadGraphData} from "./pages/Dashboard.jsx";
 import {getFilters} from "./components/Filter.jsx";
 
 const router = createBrowserRouter([
@@ -19,7 +19,11 @@ const router = createBrowserRouter([
                 element: <StartPage/>
             }, {
                 path: "dashboard",
-                loader: getFilters,
+                loader: async function () {
+                    const filters = await getFilters();
+                    const graphData = await loadGraphData();
+                    return {filters, graphData}
+                },
                 element: <Dashboard/>,
             }
         ]

@@ -4,7 +4,7 @@ const allController = require("../controllers/allController")
 
 router.post("/addAll", allController.addAll);
 router.get("/getFilters", allController.getFilters);
-router.post("/getFilteredResult", allController.getFilteredResult);
+router.post("/getGraphData", allController.getGraphData);
 
 
 

@@ -14,7 +14,7 @@ export async function getFilters() {
 
 function Filter({insert, off, incrementPos}) {
 
-    const filters = useLoaderData().data.data.filters;
+    const filters = useLoaderData().filters.data.data.filters;
 
     const logicalButtons = [{
         title: "union", symbol: "∪", offTriggers: ['u', 'i', 'o', 'n']

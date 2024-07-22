@@ -2,12 +2,23 @@ import Filter from "../components/Filter.jsx";
 import {useEffect, useState} from "react";
 import to from "await-to-js";
 import {request} from "../../requestMethods.js";
+import LikelihoodGraph from "../components/LikelihoodGraph.jsx";
+import {useLoaderData} from "react-router-dom";
+
+
+export async function loadGraphData() {
+    const [err, res] = await to(request.post("getGraphData", {arr: ['(', ')']}))
+    if (err) throw new Response(err.response.data.message, {status: err.response.status});
+    return res.data.data;
+}
+
 
 function Dashboard() {
 
     const [queryArray, setQueryArray] = useState(["(", ")"]);
     const [pos, setPos] = useState(1);
     const [off, setOff] = useState('o');
+    const [data, setData] = useState(useLoaderData().graphData);
 
     const incrementPos = () => {
         if (pos + 1 < queryArray.length) setPos(pos + 1);
@@ -21,23 +32,23 @@ function Dashboard() {
 
 
     const handleSubmit = async () => {
+        console.log('clicked')
         const arr = [];
         const elements = document.querySelector("#queryConstruct").childNodes;
         for (const element of elements) {
             if (element.tagName === 'SPAN') {
                 if (element.childNodes[0].tagName === "SELECT") {
                     const select = element.childNodes[0];
-                    arr.push(`"${select.name}": "${select.value}"`);
+                    arr.push(`"${select.name}": ${Number(select.value) || `"${select.value}"`}`);
                 } else arr.push(element.childNodes[0].textContent);
 
             }
         }
-        console.log(arr);
 
         //here we would need more stuff to handel
-        const [err, res] = await to(request.post("getFilteredResult", {arr}));
-        if (err) console.log(err)
-        else console.log(res);
+        const [err, res] = await to(request.post("getGraphData", {arr}));
+        if (!err)
+            setData(res.data.data);
     }
 
 
@@ -85,6 +96,7 @@ function Dashboard() {
             </div>
 
             <div className="flex justify-center flex-wrap gap-5">
+                <LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>

@@ -6,6 +6,7 @@ const json = require("../assets/jsondata.json");
 const Risk = require("../model/Risk");
 const Stack = require("../util/Stack");
 const {Query} = require("mongoose");
+const {getLikelihoodVsIntensityQuery} = require("../util/AggregationQueries");
 
 exports.addAll = catchAsync(async (req, res, next) => {
     await Risk.insertMany(json);
@@ -58,8 +59,9 @@ exports.getFilters = catchAsync(async (req, res, next) => {
 });
 
 
-exports.getFilteredResult = catchAsync(async (req, res, next) => {
+exports.getGraphData = catchAsync(async (req, res, next) => {
     const arr = req.body.arr; //the requested filters
+    console.log(arr)
 
     //creating a postfix expression and converting to valid mongodb aggregation query
     const stack = new Stack();
@@ -105,16 +107,15 @@ exports.getFilteredResult = catchAsync(async (req, res, next) => {
     }
 
     //converting postfix to query object
-    const queryObj = JSON.parse(`{${postfix.join("")}}`);
-    const agg = [{"$match": queryObj}];
-    const aggRes = (await Risk.aggregate(agg));
+    const likelihoodVsIntensityQueryObj = JSON.parse(getLikelihoodVsIntensityQuery(postfix[0] || ''));
+    const likelihoodVsIntensity = (await Risk.aggregate(likelihoodVsIntensityQueryObj));
 
-    //now we have resultant documents
+
 
 
     res.status(200).json({
         status: "success", data: {
-            documents: aggRes.length,
+            likelihoodVsIntensity,
         }
     })
 
