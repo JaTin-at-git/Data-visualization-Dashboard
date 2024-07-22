@@ -1,10 +1,33 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import {createBrowserRouter, RouterProvider,} from "react-router-dom";
+import "./index.css";
+import Root from "./pages/Root.jsx";
+import ErrorPage from "./pages/ErrorPage.jsx";
+import StartPage from "./pages/StartPage.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import {getFilters} from "./components/Filter.jsx";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Root/>,
+        errorElement: <ErrorPage/>,
+        children: [
+            {
+                path: "/",
+                element: <StartPage/>
+            }, {
+                path: "dashboard",
+                loader: getFilters,
+                element: <Dashboard/>,
+            }
+        ]
+    },
+]);
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+    <React.StrictMode>
+        <RouterProvider router={router}/>
+    </React.StrictMode>
+);
