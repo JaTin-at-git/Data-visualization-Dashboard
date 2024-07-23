@@ -4,6 +4,8 @@ import to from "await-to-js";
 import {request} from "../../requestMethods.js";
 import LikelihoodGraph from "../components/LikelihoodGraph.jsx";
 import {useLoaderData} from "react-router-dom";
+import RelevanceGraph from "../components/RelevanceGraph.jsx";
+import YearsGraph from "../components/YearsGraph.jsx";
 
 
 export async function loadGraphData() {
@@ -11,7 +13,6 @@ export async function loadGraphData() {
     if (err) throw new Response(err.response.data.message, {status: err.response.status});
     return res.data.data;
 }
-
 
 function Dashboard() {
 
@@ -97,6 +98,8 @@ function Dashboard() {
 
             <div className="flex justify-center flex-wrap gap-5">
                 <LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>
+                <RelevanceGraph key={JSON.stringify(data.relevance)} data={data.relevance}/>
+                <YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>
                 <div className="h-[320px] w-[320px] bg-pink-300 "></div>

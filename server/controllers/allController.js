@@ -6,7 +6,7 @@ const json = require("../assets/jsondata.json");
 const Risk = require("../model/Risk");
 const Stack = require("../util/Stack");
 const {Query} = require("mongoose");
-const {getLikelihoodVsIntensityQuery} = require("../util/AggregationQueries");
+const {getLikelihoodVsIntensityQuery, getRelevanceQuery, getYearlyCountQuery} = require("../util/AggregationQueries");
 
 exports.addAll = catchAsync(async (req, res, next) => {
     await Risk.insertMany(json);
@@ -106,16 +106,44 @@ exports.getGraphData = catchAsync(async (req, res, next) => {
         } else if (el === '!(' || el === '(') stack.push(el); else postfix.push(el);
     }
 
+    const matchQueryText = postfix[0] || '';
+
     //converting postfix to query object
-    const likelihoodVsIntensityQueryObj = JSON.parse(getLikelihoodVsIntensityQuery(postfix[0] || ''));
+    const likelihoodVsIntensityQueryObj = JSON.parse(getLikelihoodVsIntensityQuery(matchQueryText));
     const likelihoodVsIntensity = (await Risk.aggregate(likelihoodVsIntensityQueryObj));
 
+    const relevanceQueryObj = JSON.parse(getRelevanceQuery(matchQueryText));
+    const relevance = (await Risk.aggregate(relevanceQueryObj));
 
+    const yearlyCountQueryObj = JSON.parse(getYearlyCountQuery(matchQueryText));
+    const yearlyCountArray = await Risk.aggregate(yearlyCountQueryObj);
+    console.log(yearlyCountArray);
+
+
+    const map = new Map();
+
+    for (let eyo of yearlyCountArray[0].forEndYear) {
+        if(!eyo._id) continue;
+        map.set(eyo._id, {
+            _id: eyo._id, end_year: eyo.count, start_year: 0
+        });
+    }
+
+    for (let syo of yearlyCountArray[0].forStartYear) {
+        if(!syo._id) continue;
+        if (map.has(syo)) map.get(syo).start_year = syo.count; else map.set(syo._id, {
+            _id: syo._id, end_year: 0, start_year: syo.count
+        });
+    }
+
+    const yearlyCount = [];
+    map.forEach(v => yearlyCount.push(v));
+    console.log(yearlyCount);
 
 
     res.status(200).json({
         status: "success", data: {
-            likelihoodVsIntensity,
+            likelihoodVsIntensity, relevance, yearlyCount
         }
     })
 

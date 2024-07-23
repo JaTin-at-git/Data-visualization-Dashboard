@@ -46,3 +46,60 @@ exports.getLikelihoodVsIntensityQuery = (matchQueryText) => {
   ] 
     `
 }
+
+
+exports.getRelevanceQuery = (matchQueryText) => {
+    return `
+    [
+      {
+        "$match": {
+            ${matchQueryText}
+        }
+      },
+      {
+        "$group": {
+          "_id": "$relevance",
+          "value": {
+            "$sum": 1
+          }
+        }
+      }
+    ]
+    `
+}
+
+
+exports.getYearlyCountQuery = (matchQueryText) => {
+    return `
+    [
+      {
+        "$match": {
+          ${matchQueryText}
+        }
+      },{
+        "$facet": {
+          "forEndYear": [ 
+            {
+                "$group": {
+                  "_id": "$end_year",
+                  "count":{
+                    "$sum": 1
+                  }
+                } 
+            }
+          ], "forStartYear": [ 
+            {
+                "$group": {
+                  "_id": "$start_year",
+                  "count":{
+                    "$sum": 1
+                  }
+                } 
+            }
+          ]
+        }
+      }
+      
+    ]
+    `;
+}
