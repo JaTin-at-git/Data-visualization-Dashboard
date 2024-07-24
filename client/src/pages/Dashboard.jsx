@@ -6,6 +6,9 @@ import LikelihoodGraph from "../components/LikelihoodGraph.jsx";
 import {useLoaderData} from "react-router-dom";
 import RelevanceGraph from "../components/RelevanceGraph.jsx";
 import YearsGraph from "../components/YearsGraph.jsx";
+import TopicsGraph from "../components/TopicsGraph.jsx";
+import IntensityGraph from "../components/IntensityGraph.jsx";
+import CountryCountMap from "../components/CountryCountMap.jsx";
 
 
 export async function loadGraphData() {
@@ -97,12 +100,12 @@ function Dashboard() {
             </div>
 
             <div className="flex justify-center flex-wrap gap-5">
+                <CountryCountMap key={JSON.stringify(data.countryCounts)} data={data.countryCounts}/>
+                <IntensityGraph key={JSON.stringify(data.intensityGroup)} data={data.intensityGroup}/>
+                <TopicsGraph key={JSON.stringify(data.topicsDistribution)} data={data.topicsDistribution}/>
                 <LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>
                 <RelevanceGraph key={JSON.stringify(data.relevance)} data={data.relevance}/>
                 <YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>
-                <div className="h-[320px] w-[320px] bg-pink-300 "></div>
-                <div className="h-[320px] w-[320px] bg-pink-300 "></div>
-                <div className="h-[320px] w-[320px] bg-pink-300 "></div>
             </div>
         </div>
     </section>)

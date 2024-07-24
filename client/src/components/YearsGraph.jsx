@@ -4,9 +4,6 @@ import * as d3 from "d3";
 
 function YearsGraph({data}) {
 
-    //x-axis is years
-    //y-axis is count
-
     const ref = useRef();
 
     useEffect(() => {
