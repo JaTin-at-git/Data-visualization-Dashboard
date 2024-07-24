@@ -3,11 +3,6 @@ import {Outlet, useLocation} from "react-router-dom";
 import Loader from "./Loader.jsx";
 
 
-// export function generateError() {
-//     throw new Response("Not Found", {status: 404});
-//     return "mew";
-// }
-
 const Root = () => {
 
     const location = useLocation();

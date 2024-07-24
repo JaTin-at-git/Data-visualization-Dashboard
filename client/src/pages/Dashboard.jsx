@@ -2,13 +2,7 @@ import Filter from "../components/Filter.jsx";
 import {useEffect, useState} from "react";
 import to from "await-to-js";
 import {request} from "../../requestMethods.js";
-import LikelihoodGraph from "../components/LikelihoodGraph.jsx";
 import {useLoaderData} from "react-router-dom";
-import RelevanceGraph from "../components/RelevanceGraph.jsx";
-import YearsGraph from "../components/YearsGraph.jsx";
-import TopicsGraph from "../components/TopicsGraph.jsx";
-import IntensityGraph from "../components/IntensityGraph.jsx";
-import CountryCountMap from "../components/CountryCountMap.jsx";
 
 
 export async function loadGraphData() {
@@ -19,15 +13,17 @@ export async function loadGraphData() {
 
 function Dashboard() {
 
+    //this will store the elements including text nodes and actual select elements that forms the foundation logic
     const [queryArray, setQueryArray] = useState(["(", ")"]);
-    const [pos, setPos] = useState(1);
-    const [off, setOff] = useState('o');
-    const [data, setData] = useState(useLoaderData().graphData);
+    const [pos, setPos] = useState(1); //position where current logic is suposed to be inserted
+    const [off, setOff] = useState('o'); //helps determine what logics are allowed to be performed next
+    const [data, setData] = useState(useLoaderData().graphData) //actual data that will be displayed in visuals
 
     const incrementPos = () => {
         if (pos + 1 < queryArray.length) setPos(pos + 1);
     }
 
+    //insert a 'logic' in the queryArray
     const insert = (...data) => {
         setPos(pos + 1);
         const newQueryArray = [...queryArray.slice(0, pos), ...data, ...queryArray.slice(pos)];
@@ -35,8 +31,8 @@ function Dashboard() {
     }
 
 
+    //convert 'logic' to appropriate string representation and request the response from the backend
     const handleSubmit = async () => {
-        console.log('clicked')
         const arr = [];
         const elements = document.querySelector("#queryConstruct").childNodes;
         for (const element of elements) {
@@ -45,7 +41,6 @@ function Dashboard() {
                     const select = element.childNodes[0];
                     arr.push(`"${select.name}": ${Number(select.value) || `"${select.value}"`}`);
                 } else arr.push(element.childNodes[0].textContent);
-
             }
         }
 
@@ -56,6 +51,7 @@ function Dashboard() {
     }
 
 
+    //is used to set off values whenever pos changes
     useEffect(() => {
         let of = 'f';
         switch (queryArray[pos - 1]) {
@@ -78,34 +74,36 @@ function Dashboard() {
         setOff(of);
     }, [pos]);
 
-    return (<section className="bg-purple-50 grow min-h-screen flex flex-col items-center">
-        <div className="max-w-[1000px] bg-blue-100">
 
-            <div>
+    return (<section className="font-roboto grow min-h-screen flex flex-col items-center bg-gray-50">
+        <div className="">
+            <div className="bg-white px-4 pb-6 rounded-lg border border-gray-300 shadow-sm ">
                 <Filter incrementPos={incrementPos} insert={insert} off={off}/>
+                <div className="flex flex-col justify-center md:flex-row gap-2 ">
+                    <div id="queryConstruct"
+                         className="md:w-[80%] shadow-sm flex flex-wrap items-center
+                          align-middle gap-2 p-1 px-2 rounded-lg font-roboto">
+                        {...queryArray.slice(0, pos).map((o) => <span>{o}</span>)}
+                        <div className="animate-hideShow w-[15px] bg-red-700 h-[1.5px] relative top-3 mx-1"></div>
+                        {...queryArray.slice(pos).map((o) => <span>{o}</span>)}
+                    </div>
+                    <button className="md:w-[10%] btn btn-primary btn-md btn-outline "
+                            onClick={handleSubmit}>Submit
+                    </button>
+                    <div id="result">
+
+                    </div>
+                </div>
             </div>
 
-            <div className="p-3">
-                <h3 className="underline">Query:</h3>
-                <div id="queryConstruct"
-                     className="flex flex-wrap gap-2 p-1 px-2 bg-pink-300 rounded-lg text-lg font-roboto">
-                    {...queryArray.slice(0, pos).map((o) => <span>{o}</span>)}
-                    <div className="animate-hideShow w-[15px] bg-red-700 h-[1.5px] relative top-5 mx-1"></div>
-                    {...queryArray.slice(pos).map((o) => <span>{o}</span>)}
-                </div>
-                <button onClick={handleSubmit}>Submit</button>
-                <div id="result">
-
-                </div>
-            </div>
 
             <div className="flex justify-center flex-wrap gap-5">
-                <CountryCountMap key={JSON.stringify(data.countryCounts)} data={data.countryCounts}/>
-                <IntensityGraph key={JSON.stringify(data.intensityGroup)} data={data.intensityGroup}/>
-                <TopicsGraph key={JSON.stringify(data.topicsDistribution)} data={data.topicsDistribution}/>
-                <LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>
-                <RelevanceGraph key={JSON.stringify(data.relevance)} data={data.relevance}/>
-                <YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>
+                {/*<CountryCountMap key={JSON.stringify(data.countryCounts)} data={data.countryCounts}/>*/}
+                {/*<IntensityGraph key={JSON.stringify(data.intensityGroup)} data={data.intensityGroup}/>*/}
+                {/*<TopicsGraph key={JSON.stringify(data.topicsDistribution)} data={data.topicsDistribution}/>*/}
+                {/*<LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>*/}
+                {/*<RelevanceGraph key={JSON.stringify(data.relevance)} data={data.relevance}/>*/}
+                {/*<YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>*/}
             </div>
         </div>
     </section>)

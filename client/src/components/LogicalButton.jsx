@@ -6,7 +6,8 @@ function LogicalButton({title, symbol, insert, offTriggers, off}) {
 
 
     return (<button disabled={offTriggers.includes(off)} onClick={handleClick} title={title}
-                    className="text-nowrap disabled:bg-stone-200 disabled:hover:scale-100 border border-black px-2 rounded-lg hover:scale-[102%] transition-all active:scale-100">
+                    className="w-10 h-10 border-2 border-black disabled:text-gray-500 disabled:border-gray-300 shadow-sm  text-nowrap disabled:bg-neutral-200
+                    disabled:hover:scale-100 text-gray-600 px-2 rounded-lg hover:scale-[102%] transition-all active:scale-100">
         {symbol}
     </button>)
 
