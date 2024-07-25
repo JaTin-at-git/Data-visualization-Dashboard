@@ -1,16 +1,17 @@
 import {useEffect, useRef} from "react";
 import * as d3 from "d3";
 
-function TopicsGraph(data) {
+function TopicsGraph({data}) {
     const ref = useRef();
 
-    data = {children: data?.data || []}
+    console.log(data)
+    data = {children: data || []}
+    console.log(data.children.length)
 
     useEffect(() => {
 
         // set the dimensions and margins of the graph
-        let margin = {top: 10, right: 10, bottom: 10, left: 10},
-            width = 445 - margin.left - margin.right,
+        let margin = {top: 10, right: 10, bottom: 10, left: 10}, width = 445 - margin.left - margin.right,
             height = 445 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page

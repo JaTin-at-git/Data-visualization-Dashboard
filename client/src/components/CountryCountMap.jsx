@@ -1,8 +1,9 @@
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import * as d3 from "d3";
 
 function CountryCountMap({data}) {
     const ref = useRef();
+    const outerDiv = useRef();
 
     const colorDomain = Array.from(new Set(data.map(d => d.count))).sort((a, b) => 1 * a - 1 * b);
 
@@ -11,12 +12,17 @@ function CountryCountMap({data}) {
 
     data = map;
 
+    const [title, setTitle] = useState("Risk Count vs Countries");
+
     useEffect(() => {
 
+
         // The svg
-        const svg = d3.select(ref.current),
-            width = +svg.attr("width"),
-            height = +svg.attr("height");
+        const svg = d3.select(ref.current).append('svg'),
+            width = 500,
+            height = 400;
+
+        svg.attr('width',width).attr('height',height)
 
         // Map and projection
         const path = d3.geoPath();
@@ -28,33 +34,27 @@ function CountryCountMap({data}) {
         // Data and color scale
         const colorScale = d3.scaleThreshold()
             .domain(colorDomain)
-            .range(d3.schemeBlues[7]);
+            .range(d3.schemeBlues[3]);
 
         // Load external data and boot
         Promise.all([d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")]).then(function (loadData) {
             let topo = loadData[0]
 
             let mouseOver = function (d) {
-                d3.selectAll(".Country")
-                    .transition()
-                    .duration(200)
-                    .style("opacity", .5)
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .style("opacity", 1)
-                    .style("stroke", "black")
+                outerDiv.current.querySelectorAll("path").forEach(o => o.setAttribute('style', 'opacity: .3'))
+                d.setAttribute('style', 'opacity: 1')
+                d.setAttribute("stroke", "black")
+                // d.setAttribute("fill", "#22c55e")
+
             }
 
-            let mouseLeave = function (d) {
-                d3.selectAll(".Country")
-                    .transition()
-                    .duration(200)
-                    .style("opacity", .8)
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .style("stroke", "transparent")
+            let mouseLeave = function (e,d) {
+                outerDiv.current.querySelectorAll("path").forEach(o => {
+                    o.setAttribute('style', 'opacity: 1');
+                    o.setAttribute('stroke', 'none');
+                })
+                setTitle("Risk Count vs Countries");
+                // e.target.setAttribute("fill", colorScale(data.get(d.properties.name) || 0))
             }
 
             // Draw the map
@@ -72,18 +72,26 @@ function CountryCountMap({data}) {
                     return colorScale(d.total);
                 })
                 .style("stroke", "transparent")
+                .attr('title', (d) => d.total)
                 .attr("class", function (d) {
                     return "Country"
                 })
                 .style("opacity", .8)
-                .on("mouseover", mouseOver)
+                .on("mouseover", function (e, d) {
+                    mouseOver(this)
+                    setTitle(`${d.properties.name} reported ${d.total} risks`);
+                })
                 .on("mouseleave", mouseLeave)
-
         })
 
-    }, []);
+        return ()=>ref.current.querySelector("svg").remove()
 
-    return <svg height={500} width={500} ref={ref}></svg>
+    }, [data]);
+
+    return <div title={title} ref={outerDiv} className="shadow-md bg-white rounded-md relative">
+        <div className="text-gray-500 absolute top-0 right-0 p-2">{title}</div>
+        <div ref={ref}></div>
+    </div>
 
 }
 

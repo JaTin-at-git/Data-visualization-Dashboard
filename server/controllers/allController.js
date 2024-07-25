@@ -161,8 +161,11 @@ exports.getGraphData = catchAsync(async (req, res, next) => {
         o.value = o.value * 100 / map.get(o.sector).tv;
     }
     intensityGroup.sort((a, b) => {
-        if (a.sector === b.sector) return 1 * b.value - 1 * a.value; else return b.sector - a.sector;
+        if (a.sector === b.sector) return b.value - a.value;
+        else return b.sector < a.sector? 1: -1;
     })
+
+    intensityGroup = intensityGroup.filter(o => parseInt(o.value)>0);
 
 
     //country count aggregation

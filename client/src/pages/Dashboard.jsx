@@ -1,8 +1,14 @@
 import Filter from "../components/Filter.jsx";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import to from "await-to-js";
 import {request} from "../../requestMethods.js";
 import {useLoaderData} from "react-router-dom";
+import CountryCountMap from "../components/CountryCountMap.jsx";
+import LikelihoodGraph from "../components/LikelihoodGraph.jsx";
+import RelevanceGraph from "../components/RelevanceGraph.jsx";
+import IntensityGraph from "../components/IntensityGraph.jsx";
+import TopicsGraph from "../components/TopicsGraph.jsx";
+import YearsGraph from "../components/YearsGraph.jsx";
 
 
 export async function loadGraphData() {
@@ -97,13 +103,12 @@ function Dashboard() {
             </div>
 
 
-            <div className="flex justify-center flex-wrap gap-5">
-                {/*<CountryCountMap key={JSON.stringify(data.countryCounts)} data={data.countryCounts}/>*/}
-                {/*<IntensityGraph key={JSON.stringify(data.intensityGroup)} data={data.intensityGroup}/>*/}
-                {/*<TopicsGraph key={JSON.stringify(data.topicsDistribution)} data={data.topicsDistribution}/>*/}
-                {/*<LikelihoodGraph key={JSON.stringify(data.likelihoodVsIntensity)} data={data.likelihoodVsIntensity}/>*/}
-                {/*<RelevanceGraph key={JSON.stringify(data.relevance)} data={data.relevance}/>*/}
-                {/*<YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>*/}
+            <div className="flex justify-center flex-wrap gap-5 m-5 bg-white">
+                <CountryCountMap data={data.countryCounts}/>
+                <RelevanceGraph data={data.relevance}/>
+                <YearsGraph key={JSON.stringify(data.yearlyCount)} data={data.yearlyCount}/>
+                <IntensityGraph data={data.intensityGroup}/>
+                <LikelihoodGraph  data={data.likelihoodVsIntensity}/>
             </div>
         </div>
     </section>)

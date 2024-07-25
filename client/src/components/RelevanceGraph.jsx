@@ -1,23 +1,20 @@
 import {useEffect, useRef} from "react";
 import * as d3 from "d3";
 
-function RelevanceGraph(data) {
+function RelevanceGraph({data}) {
 
-    data = data.data
     data.sort((a, b) => a._id - b._id)
-
     const ref = useRef();
 
     useEffect(() => {
+
 
         // Specify the chart’s dimensions.
         const width = 300;
         const height = 300;
 
         // Create the color scale.
-        const color = d3.scaleOrdinal()
-            .domain(data.map(d => d._id))
-            .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse())
+        const color = d3.scaleOrdinal(d3.schemeSet3);
 
         // Create the pie layout and arc generator.
         const pie = d3.pie()
@@ -39,10 +36,11 @@ function RelevanceGraph(data) {
 
         // Create the SVG container.
         const svg = d3.select(ref.current)
+            .append('svg')
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", [-width / 2, -height / 2, width, height])
-            .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+            .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;")
 
         // Add a sector path for each value.
         svg.append("g")
@@ -53,7 +51,7 @@ function RelevanceGraph(data) {
             .attr("fill", d => color(d.data._id))
             .attr("d", arc)
             .append("title")
-            .text(d => `${d.data._id}: ${d.data.value.toLocaleString("en-US")}`);
+            .text(d => `Relevance ${d.data._id}: ${d.data.value.toLocaleString("en-US")}`)
 
         // Create a new arc generator to place a label close to the edge.
         // The label shows the value if there is enough room.
@@ -63,21 +61,42 @@ function RelevanceGraph(data) {
             .data(arcs)
             .join("text")
             .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+
             .call(text => text.append("tspan")
-                .attr("y", "-0.4em")
-                .attr("font-weight", "bold")
+
                 .text(d => d.data._id))
-            .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append("tspan")
-                .attr("x", 0)
-                .attr("y", "0.7em")
-                .attr("fill-opacity", 0.7)
-                .text(d => d.data.value.toLocaleString("en-US")));
 
-        // document.querySelector("body").appendChild(svg.node());
 
-    }, []);
+        return () => ref.current.querySelector('svg').remove()
 
-    return <svg ref={ref}></svg>
+    }, [data]);
+
+    return <div className="flex w-fit gap-8 bg-white p-8 rounded-md shadow-md">
+
+        <div className="flex justify-center flex-col items-center">
+            <div className="w-[300px]" ref={ref}></div>
+            <div className="text-gray-500 p-2">Relevance Count</div>
+        </div>
+
+        <table className="table table-zebra table-sm">
+            {/* head */}
+            <thead>
+            <tr>
+                <th>Relevance</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            {data.map((d, i) => {
+                return (<tr key={i}>
+                    <td>{d._id || "NA"}</td>
+                    <td>{d.value}</td>
+                </tr>)
+            })}
+            </tbody>
+        </table>
+
+    </div>
 
 }
 
